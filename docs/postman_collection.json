@@ -1,0 +1,102 @@
+{
+  "info": {
+    "name": "Healthtech Knowledge Base API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api/v1" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"amina@example.com\",\n  \"password\": \"secret123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Articles - List",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/articles"
+      }
+    },
+    {
+      "name": "Articles - Get by Slug",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/articles/reverse-discharge-entry"
+      }
+    },
+    {
+      "name": "Articles - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{base_url}}/articles",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Sample Article\",\n  \"content\": \"Article body here\",\n  \"category_id\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "Categories - List",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/categories"
+      }
+    },
+    {
+      "name": "Search",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/search?q=discharge"
+      }
+    },
+    {
+      "name": "Feedback - Submit",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{base_url}}/feedback",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"article_id\": 1,\n  \"rating\": 5,\n  \"comment\": \"Very helpful\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Chat - Ask Question",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/chat",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"question\": \"How do I reverse a discharge entry?\",\n  \"session_id\": \"abc-123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Admin - Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/admin/dashboard"
+      }
+    }
+  ]
+}
