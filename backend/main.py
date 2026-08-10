@@ -1,10 +1,11 @@
+import re
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
 import models
 import schemas
-from auth import hash_password, verify_password, create_access_token
+from auth import hash_password, verify_password, create_access_token, get_current_user, require_role
 
 Base.metadata.create_all(bind=engine)
 
@@ -50,3 +51,36 @@ def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
 
     access_token = create_access_token(data={"sub": str(user.id), "role": user.role})
     return {"access_token": access_token, "token_type": "bearer", "role": user.role}
+
+
+def slugify(text: str) -> str:
+    text = text.lower().strip()
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-")
+
+
+@app.post("/api/v1/articles", response_model=schemas.ArticleOut)
+def create_article(
+    article: schemas.ArticleCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role("editor", "admin")),
+):
+    slug = slugify(article.title)
+
+    existing = db.query(models.Article).filter(models.Article.slug == slug).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="An article with a similar title already exists")
+
+    new_article = models.Article(
+        title=article.title,
+        slug=slug,
+        content=article.content,
+        category_id=article.category_id,
+        author_id=current_user.id,
+        product_version=article.product_version,
+        status="draft",
+    )
+    db.add(new_article)
+    db.commit()
+    db.refresh(new_article)
+    return new_article
