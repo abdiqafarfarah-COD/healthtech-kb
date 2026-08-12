@@ -84,3 +84,32 @@ def create_article(
     db.commit()
     db.refresh(new_article)
     return new_article
+
+
+@app.get("/api/v1/articles", response_model=list[schemas.ArticleOut])
+def list_articles(db: Session = Depends(get_db)):
+    return db.query(models.Article).filter(models.Article.status == "published").all()
+
+
+@app.get("/api/v1/articles/{slug}", response_model=schemas.ArticleOut)
+def get_article(slug: str, db: Session = Depends(get_db)):
+    article = db.query(models.Article).filter(models.Article.slug == slug).first()
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return article
+
+
+@app.post("/api/v1/articles/{article_id}/publish", response_model=schemas.ArticleOut)
+def publish_article(
+    article_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role("admin")),
+):
+    article = db.query(models.Article).filter(models.Article.id == article_id).first()
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+
+    article.status = "published"
+    db.commit()
+    db.refresh(article)
+    return article
