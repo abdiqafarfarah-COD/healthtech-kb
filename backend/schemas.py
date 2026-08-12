@@ -50,3 +50,21 @@ class ArticleOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CategoryCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    parent_id: Optional[int] = None
+
+
+class CategoryOut(BaseModel):
+    id: int
+    name: str
+    slug: str
+    parent_id: Optional[int] = None
+    description: Optional[str] = None
+    article_count: int = 0
+
+    class Config:
+        from_attributes = True

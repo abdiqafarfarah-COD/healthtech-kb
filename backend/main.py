@@ -113,3 +113,40 @@ def publish_article(
     db.commit()
     db.refresh(article)
     return article
+@app.post("/api/v1/categories", response_model=schemas.CategoryOut)
+def create_category(
+    category: schemas.CategoryCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role("admin")),
+):
+    slug = slugify(category.name)
+
+    existing = db.query(models.Category).filter(models.Category.slug == slug).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="A category with a similar name already exists")
+
+    new_category = models.Category(
+        name=category.name,
+        slug=slug,
+        description=category.description,
+        parent_id=category.parent_id,
+    )
+    db.add(new_category)
+    db.commit()
+    db.refresh(new_category)
+
+    result = schemas.CategoryOut.model_validate(new_category)
+    result.article_count = 0
+    return result
+
+
+@app.get("/api/v1/categories", response_model=list[schemas.CategoryOut])
+def list_categories(db: Session = Depends(get_db)):
+    categories = db.query(models.Category).all()
+    output = []
+    for cat in categories:
+        count = db.query(models.Article).filter(models.Article.category_id == cat.id).count()
+        item = schemas.CategoryOut.model_validate(cat)
+        item.article_count = count
+        output.append(item)
+    return output
