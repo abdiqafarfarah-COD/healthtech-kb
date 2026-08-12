@@ -150,3 +150,29 @@ def list_categories(db: Session = Depends(get_db)):
         item.article_count = count
         output.append(item)
     return output
+@app.get("/api/v1/search", response_model=list[schemas.ArticleOut])
+def search_articles(q: str, db: Session = Depends(get_db)):
+    query = f"%{q.lower()}%"
+
+    title_matches = db.query(models.Article).filter(
+        models.Article.status == "published",
+        models.Article.title.ilike(query)
+    ).all()
+
+    body_matches = db.query(models.Article).filter(
+        models.Article.status == "published",
+        models.Article.content.ilike(query)
+    ).all()
+
+    seen_ids = set()
+    results = []
+    for article in title_matches + body_matches:
+        if article.id not in seen_ids:
+            seen_ids.add(article.id)
+            results.append(article)
+
+    log_entry = models.SearchLog(query=q, results_count=len(results))
+    db.add(log_entry)
+    db.commit()
+
+    return results
