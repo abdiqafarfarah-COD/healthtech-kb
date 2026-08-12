@@ -85,3 +85,16 @@ class FeedbackOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ChatRequest(BaseModel):
+    question: str
+    session_id: str
+
+
+class ChatResponse(BaseModel):
+    answer: str
+    cited_article_id: Optional[int] = None
+    cited_article_title: Optional[str] = None
+    cited_article_slug: Optional[str] = None
+    session_id: str

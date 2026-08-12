@@ -199,3 +199,49 @@ def submit_feedback(
     db.commit()
     db.refresh(new_feedback)
     return new_feedback
+@app.post("/api/v1/chat", response_model=schemas.ChatResponse)
+def chat(request: schemas.ChatRequest, db: Session = Depends(get_db)):
+    query = f"%{request.question.lower()}%"
+
+    match = db.query(models.Article).filter(
+        models.Article.status == "published",
+        models.Article.title.ilike(query)
+    ).first()
+
+    if not match:
+        words = [w for w in request.question.lower().split() if len(w) > 3]
+        for word in words:
+            match = db.query(models.Article).filter(
+                models.Article.status == "published",
+                models.Article.content.ilike(f"%{word}%")
+            ).first()
+            if match:
+                break
+
+    if match:
+        answer = f"Based on our knowledge base: {match.content}"
+        cited_id = match.id
+        cited_title = match.title
+        cited_slug = match.slug
+    else:
+        answer = "I couldn't find an answer to that in our knowledge base. Would you like to escalate this to support?"
+        cited_id = None
+        cited_title = None
+        cited_slug = None
+
+    log_entry = models.ChatLog(
+        session_id=request.session_id,
+        question=request.question,
+        answer=answer,
+        cited_article_id=cited_id,
+    )
+    db.add(log_entry)
+    db.commit()
+
+    return schemas.ChatResponse(
+        answer=answer,
+        cited_article_id=cited_id,
+        cited_article_title=cited_title,
+        cited_article_slug=cited_slug,
+        session_id=request.session_id,
+    )
