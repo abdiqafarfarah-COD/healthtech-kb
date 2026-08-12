@@ -68,3 +68,20 @@ class CategoryOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class FeedbackCreate(BaseModel):
+    article_id: int
+    rating: int
+    comment: Optional[str] = None
+
+
+class FeedbackOut(BaseModel):
+    id: int
+    article_id: int
+    user_id: Optional[int] = None
+    rating: int
+    comment: Optional[str] = None
+
+    class Config:
+        from_attributes = True

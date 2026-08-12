@@ -176,3 +176,26 @@ def search_articles(q: str, db: Session = Depends(get_db)):
     db.commit()
 
     return results
+@app.post("/api/v1/feedback", response_model=schemas.FeedbackOut)
+def submit_feedback(
+    feedback: schemas.FeedbackCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if feedback.rating < 1 or feedback.rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
+
+    article = db.query(models.Article).filter(models.Article.id == feedback.article_id).first()
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+
+    new_feedback = models.Feedback(
+        article_id=feedback.article_id,
+        user_id=current_user.id,
+        rating=feedback.rating,
+        comment=feedback.comment,
+    )
+    db.add(new_feedback)
+    db.commit()
+    db.refresh(new_feedback)
+    return new_feedback
