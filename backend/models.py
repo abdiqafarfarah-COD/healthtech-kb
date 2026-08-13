@@ -11,7 +11,7 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
-    role = Column(String, nullable=False, default="viewer")  # viewer, editor, admin
+    role = Column(String, nullable=False, default="viewer")
     department = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -35,7 +35,7 @@ class Article(Base):
     content = Column(Text, nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    status = Column(String, nullable=False, default="draft")  # draft, published, archived
+    status = Column(String, nullable=False, default="draft")
     product_version = Column(String, nullable=True)
     views = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -78,7 +78,7 @@ class Media(Base):
     article_id = Column(Integer, ForeignKey("articles.id"), nullable=False)
     filename = Column(String, nullable=False)
     url = Column(String, nullable=False)
-    type = Column(String, nullable=False)  # image, pdf, video
+    type = Column(String, nullable=False)
     uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 
 
@@ -102,4 +102,16 @@ class ChatLog(Base):
     answer = Column(Text, nullable=True)
     cited_article_id = Column(Integer, ForeignKey("articles.id"), nullable=True)
     helpful = Column(Boolean, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    action = Column(String, nullable=False)
+    target_type = Column(String, nullable=True)
+    target_id = Column(Integer, nullable=True)
+    details = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

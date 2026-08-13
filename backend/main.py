@@ -110,9 +110,21 @@ def publish_article(
         raise HTTPException(status_code=404, detail="Article not found")
 
     article.status = "published"
+
+    audit_entry = models.AuditLog(
+        user_id=current_user.id,
+        action="publish_article",
+        target_type="article",
+        target_id=article.id,
+        details=f"Published article '{article.title}'",
+    )
+    db.add(audit_entry)
+
     db.commit()
     db.refresh(article)
     return article
+
+
 @app.post("/api/v1/categories", response_model=schemas.CategoryOut)
 def create_category(
     category: schemas.CategoryCreate,
@@ -132,6 +144,17 @@ def create_category(
         parent_id=category.parent_id,
     )
     db.add(new_category)
+    db.flush()
+
+    audit_entry = models.AuditLog(
+        user_id=current_user.id,
+        action="create_category",
+        target_type="category",
+        target_id=new_category.id,
+        details=f"Created category '{new_category.name}'",
+    )
+    db.add(audit_entry)
+
     db.commit()
     db.refresh(new_category)
 
@@ -150,6 +173,8 @@ def list_categories(db: Session = Depends(get_db)):
         item.article_count = count
         output.append(item)
     return output
+
+
 @app.get("/api/v1/search", response_model=list[schemas.ArticleOut])
 def search_articles(q: str, db: Session = Depends(get_db)):
     query = f"%{q.lower()}%"
@@ -176,6 +201,8 @@ def search_articles(q: str, db: Session = Depends(get_db)):
     db.commit()
 
     return results
+
+
 @app.post("/api/v1/feedback", response_model=schemas.FeedbackOut)
 def submit_feedback(
     feedback: schemas.FeedbackCreate,
@@ -199,6 +226,8 @@ def submit_feedback(
     db.commit()
     db.refresh(new_feedback)
     return new_feedback
+
+
 @app.post("/api/v1/chat", response_model=schemas.ChatResponse)
 def chat(request: schemas.ChatRequest, db: Session = Depends(get_db)):
     query = f"%{request.question.lower()}%"
