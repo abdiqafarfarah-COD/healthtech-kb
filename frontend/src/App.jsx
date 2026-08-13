@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ArticleView from "./pages/ArticleView";
 import Editor from "./pages/Editor";
+import AdminDashboard from "./pages/AdminDashboard";
 import "./App.css";
 
 function App() {
@@ -22,6 +23,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["editor", "admin"]}>
               <Editor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
