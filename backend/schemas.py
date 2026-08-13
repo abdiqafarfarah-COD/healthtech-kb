@@ -98,3 +98,15 @@ class ChatResponse(BaseModel):
     cited_article_title: Optional[str] = None
     cited_article_slug: Optional[str] = None
     session_id: str
+
+
+class DashboardStats(BaseModel):
+    total_articles: int
+    published_articles: int
+    draft_articles: int
+    total_users: int
+    total_categories: int
+    top_articles: list[dict]
+    low_rated_articles: list[dict]
+    recent_searches: list[dict]
+    recent_audit_log: list[dict]

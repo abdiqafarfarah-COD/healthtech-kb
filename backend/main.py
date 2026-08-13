@@ -1,6 +1,7 @@
 import re
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import text
+from sqlalchemy import func as sqlfunc
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
 import models
@@ -273,4 +274,50 @@ def chat(request: schemas.ChatRequest, db: Session = Depends(get_db)):
         cited_article_title=cited_title,
         cited_article_slug=cited_slug,
         session_id=request.session_id,
+    )
+
+
+@app.get("/api/v1/admin/dashboard", response_model=schemas.DashboardStats)
+def admin_dashboard(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role("admin")),
+):
+    total_articles = db.query(models.Article).count()
+    published_articles = db.query(models.Article).filter(models.Article.status == "published").count()
+    draft_articles = db.query(models.Article).filter(models.Article.status == "draft").count()
+    total_users = db.query(models.User).count()
+    total_categories = db.query(models.Category).count()
+
+    top_articles_query = db.query(models.Article).order_by(models.Article.views.desc()).limit(5).all()
+    top_articles = [{"id": a.id, "title": a.title, "views": a.views} for a in top_articles_query]
+
+    low_rated = (
+        db.query(
+            models.Article.id,
+            models.Article.title,
+            sqlfunc.avg(models.Feedback.rating).label("avg_rating")
+        )
+        .join(models.Feedback, models.Feedback.article_id == models.Article.id)
+        .group_by(models.Article.id, models.Article.title)
+        .having(sqlfunc.avg(models.Feedback.rating) <= 2)
+        .all()
+    )
+    low_rated_articles = [{"id": a.id, "title": a.title, "avg_rating": float(a.avg_rating)} for a in low_rated]
+
+    recent_searches_query = db.query(models.SearchLog).order_by(models.SearchLog.created_at.desc()).limit(10).all()
+    recent_searches = [{"query": s.query, "results_count": s.results_count} for s in recent_searches_query]
+
+    recent_audit_query = db.query(models.AuditLog).order_by(models.AuditLog.created_at.desc()).limit(10).all()
+    recent_audit_log = [{"action": a.action, "details": a.details, "user_id": a.user_id} for a in recent_audit_query]
+
+    return schemas.DashboardStats(
+        total_articles=total_articles,
+        published_articles=published_articles,
+        draft_articles=draft_articles,
+        total_users=total_users,
+        total_categories=total_categories,
+        top_articles=top_articles,
+        low_rated_articles=low_rated_articles,
+        recent_searches=recent_searches,
+        recent_audit_log=recent_audit_log,
     )
