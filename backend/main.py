@@ -1,5 +1,6 @@
 import re
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy import func as sqlfunc
 from sqlalchemy.orm import Session
@@ -11,6 +12,14 @@ from auth import hash_password, verify_password, create_access_token, get_curren
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Healthtech Knowledge Base API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
