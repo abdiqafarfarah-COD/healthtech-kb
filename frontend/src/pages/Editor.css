@@ -1,0 +1,86 @@
+.editor-header {
+  margin-bottom: 28px;
+}
+
+.editor-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 6px;
+}
+
+.editor-header p {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.editor-form {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 32px;
+}
+
+.editor-form .form-group {
+  margin-bottom: 18px;
+}
+
+.editor-form label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+}
+
+.editor-form input,
+.editor-form textarea,
+.editor-form select {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 14px;
+}
+
+.editor-form textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.editor-form input:focus,
+.editor-form textarea:focus,
+.editor-form select:focus {
+  outline: none;
+  border-color: #38bdf8;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.editor-form button[type="submit"] {
+  padding: 12px 28px;
+  background-color: #38bdf8;
+  color: #0f172a;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.editor-form button[type="submit"]:hover {
+  background-color: #0ea5e9;
+}
+
+.editor-form button[type="submit"]:disabled {
+  background-color: #475569;
+  cursor: not-allowed;
+}
