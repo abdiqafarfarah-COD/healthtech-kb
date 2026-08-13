@@ -8,36 +8,48 @@ import Register from "./pages/Register";
 import ArticleView from "./pages/ArticleView";
 import Editor from "./pages/Editor";
 import AdminDashboard from "./pages/AdminDashboard";
+import MockHMIS from "./pages/MockHMIS";
 import "./App.css";
 
 function App() {
   return (
-    <>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/articles/:slug" element={<ArticleView />} />
-        <Route
-          path="/editor"
-          element={
-            <ProtectedRoute allowedRoles={["editor", "admin"]}>
-              <Editor />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-      <ChatWidget />
-    </>
+    <Routes>
+      <Route
+        path="/hmis-demo"
+        element={<MockHMIS />}
+      />
+      <Route
+        path="*"
+        element={
+          <>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/articles/:slug" element={<ArticleView />} />
+              <Route
+                path="/editor"
+                element={
+                  <ProtectedRoute allowedRoles={["editor", "admin"]}>
+                    <Editor />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+            <ChatWidget />
+          </>
+        }
+      />
+    </Routes>
   );
 }
 
