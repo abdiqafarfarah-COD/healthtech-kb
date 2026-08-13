@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./ArticleView.css";
@@ -7,6 +7,7 @@ import "./ArticleView.css";
 export default function ArticleView() {
   const { slug } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,9 @@ export default function ArticleView() {
   const [comment, setComment] = useState("");
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [feedbackError, setFeedbackError] = useState("");
+
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState("");
 
   useEffect(() => {
     loadArticle();
@@ -59,6 +63,23 @@ export default function ArticleView() {
     }
   }
 
+  async function handlePublish() {
+    setPublishing(true);
+    setPublishError("");
+    try {
+      const response = await api.post(`/articles/${article.id}/publish`);
+      setArticle(response.data);
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.detail) {
+        setPublishError(err.response.data.detail);
+      } else {
+        setPublishError("Failed to publish article.");
+      }
+    } finally {
+      setPublishing(false);
+    }
+  }
+
   if (loading) {
     return <div className="page-container">Loading article...</div>;
   }
@@ -79,8 +100,20 @@ export default function ArticleView() {
       </Link>
 
       <div className="article-full">
-        <h1>{article.title}</h1>
+        <div className="article-title-row">
+          <h1>{article.title}</h1>
+          {user && user.role === "admin" && article.status === "draft" && (
+            <button
+              className="publish-button"
+              onClick={handlePublish}
+              disabled={publishing}
+            >
+              {publishing ? "Publishing..." : "Publish"}
+            </button>
+          )}
+        </div>
         <div className="article-meta">Status: {article.status}</div>
+        {publishError && <div className="auth-error">{publishError}</div>}
         <div className="article-content">{article.content}</div>
       </div>
 
