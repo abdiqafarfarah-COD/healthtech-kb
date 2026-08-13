@@ -1,0 +1,119 @@
+.category-header {
+  margin-bottom: 28px;
+}
+
+.category-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 6px;
+}
+
+.category-header p {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.category-form {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 28px;
+  margin-bottom: 36px;
+}
+
+.category-form .form-group {
+  margin-bottom: 16px;
+}
+
+.category-form label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+}
+
+.category-form input,
+.category-form textarea,
+.category-form select {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 14px;
+}
+
+.category-form textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.category-form input:focus,
+.category-form textarea:focus,
+.category-form select:focus {
+  outline: none;
+  border-color: #38bdf8;
+}
+
+.category-form button[type="submit"] {
+  padding: 11px 24px;
+  background-color: #38bdf8;
+  color: #0f172a;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.category-form button[type="submit"]:hover {
+  background-color: #0ea5e9;
+}
+
+.category-form button[type="submit"]:disabled {
+  background-color: #475569;
+  cursor: not-allowed;
+}
+
+.category-list-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 16px;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-card {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.category-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 4px;
+}
+
+.category-card-desc {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.category-card-count {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

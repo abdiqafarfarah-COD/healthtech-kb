@@ -8,16 +8,14 @@ import Register from "./pages/Register";
 import ArticleView from "./pages/ArticleView";
 import Editor from "./pages/Editor";
 import AdminDashboard from "./pages/AdminDashboard";
+import CategoryManager from "./pages/CategoryManager";
 import MockHMIS from "./pages/MockHMIS";
 import "./App.css";
 
 function App() {
   return (
     <Routes>
-      <Route
-        path="/hmis-demo"
-        element={<MockHMIS />}
-      />
+      <Route path="/hmis-demo" element={<MockHMIS />} />
       <Route
         path="*"
         element={
@@ -41,6 +39,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/categories"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <CategoryManager />
                   </ProtectedRoute>
                 }
               />

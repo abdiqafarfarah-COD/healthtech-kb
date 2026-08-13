@@ -25,6 +25,7 @@ export default function Navbar() {
             {(user.role === "editor" || user.role === "admin") && (
               <Link to="/editor">Editor</Link>
             )}
+            {user.role === "admin" && <Link to="/categories">Categories</Link>}
             {user.role === "admin" && <Link to="/admin">Admin</Link>}
             <span className="navbar-user">
               {user.email} ({user.role})
