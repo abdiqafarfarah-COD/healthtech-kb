@@ -2,19 +2,20 @@
   display: inline-block;
   margin-bottom: 24px;
   font-size: 14px;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .back-link:hover {
-  color: #38bdf8;
+  color: #2563eb;
 }
 
 .article-full {
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 32px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .article-title-row {
@@ -28,14 +29,14 @@
 .article-title-row h1 {
   font-size: 26px;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0f172a;
 }
 
 .publish-button {
   flex-shrink: 0;
   padding: 9px 20px;
-  background-color: #22c55e;
-  color: #0f172a;
+  background-color: #16a34a;
+  color: #ffffff;
   border: none;
   border-radius: 6px;
   font-size: 13px;
@@ -44,17 +45,17 @@
 }
 
 .publish-button:hover {
-  background-color: #16a34a;
+  background-color: #15803d;
 }
 
 .publish-button:disabled {
-  background-color: #475569;
+  background-color: #cbd5e1;
   cursor: not-allowed;
 }
 
 .article-meta {
   font-size: 13px;
-  color: #64748b;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 20px;
@@ -62,22 +63,23 @@
 
 .article-content {
   font-size: 15px;
-  color: #cbd5e1;
+  color: #334155;
   white-space: pre-wrap;
   line-height: 1.7;
 }
 
 .feedback-box {
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 24px 32px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .feedback-box h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #0f172a;
   margin-bottom: 14px;
 }
 
@@ -91,21 +93,21 @@
   background: none;
   border: none;
   font-size: 26px;
-  color: #475569;
+  color: #cbd5e1;
   padding: 0;
 }
 
 .star.selected {
-  color: #facc15;
+  color: #f59e0b;
 }
 
 .feedback-box textarea {
   width: 100%;
   padding: 10px 12px;
-  background-color: #0f172a;
-  border: 1px solid #334155;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
-  color: #f1f5f9;
+  color: #0f172a;
   font-size: 14px;
   font-family: inherit;
   resize: vertical;
@@ -114,13 +116,14 @@
 
 .feedback-box textarea:focus {
   outline: none;
-  border-color: #38bdf8;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .feedback-submit {
   padding: 10px 20px;
-  background-color: #38bdf8;
-  color: #0f172a;
+  background-color: #2563eb;
+  color: #ffffff;
   border: none;
   border-radius: 6px;
   font-size: 14px;
@@ -128,10 +131,10 @@
 }
 
 .feedback-submit:hover {
-  background-color: #0ea5e9;
+  background-color: #1d4ed8;
 }
 
 .feedback-thanks {
-  color: #86efac;
+  color: #16a34a;
   font-size: 14px;
 }

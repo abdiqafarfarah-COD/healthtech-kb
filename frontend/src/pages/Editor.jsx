@@ -57,7 +57,7 @@ export default function Editor() {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container editor-page">
       <div className="editor-header">
         <h1>Editor Workspace</h1>
         <p>Create a new knowledge base article (saved as draft)</p>
@@ -89,7 +89,7 @@ export default function Editor() {
           />
         </div>
 
-        <div className="form-row">
+        <div className="editor-form-row">
           <div className="form-group">
             <label htmlFor="category">Category (optional)</label>
             <select
