@@ -8,13 +8,21 @@ export default function Home() {
   const [statsLoading, setStatsLoading] = useState(true);
 
   const [articles, setArticles] = useState([]);
+  const [articlesLoading, setArticlesLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState(null);
+
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     loadStats();
   }, []);
+
+  useEffect(() => {
+    loadArticles(activeCategory);
+  }, [activeCategory]);
 
   async function loadStats() {
     setStatsLoading(true);
@@ -28,18 +36,31 @@ export default function Home() {
     }
   }
 
+  async function loadArticles(categoryId) {
+    setArticlesLoading(true);
+    try {
+      const params = categoryId ? { category_id: categoryId } : {};
+      const response = await api.get("/articles", { params });
+      setArticles(response.data);
+    } catch (err) {
+      console.error("Failed to load articles", err);
+    } finally {
+      setArticlesLoading(false);
+    }
+  }
+
   async function handleSearch(e) {
     e.preventDefault();
     if (!query.trim()) {
       setSearched(false);
-      setArticles([]);
+      setSearchResults([]);
       return;
     }
     setSearching(true);
     setSearched(true);
     try {
       const response = await api.get("/search", { params: { q: query } });
-      setArticles(response.data);
+      setSearchResults(response.data);
     } catch (err) {
       console.error("Search failed", err);
     } finally {
@@ -47,8 +68,14 @@ export default function Home() {
     }
   }
 
+  function clearSearch() {
+    setQuery("");
+    setSearched(false);
+    setSearchResults([]);
+  }
+
   return (
-    <div className="page-container home-dashboard">
+    <div className="home-layout">
       <div className="home-hero">
         <h1>Healthtech Knowledge Base</h1>
         <p>Search troubleshooting articles, track engagement, and stay on top of documentation activity.</p>
@@ -64,106 +91,170 @@ export default function Home() {
         </form>
       </div>
 
-      {searched ? (
-        <div className="search-results-section">
-          <h2>Search Results</h2>
-          {searching ? (
-            <div className="empty-state">Searching...</div>
-          ) : articles.length === 0 ? (
-            <div className="empty-state">No articles matched your search.</div>
+      <div className="home-grid">
+        <aside className="home-col home-left">
+          <div className="home-panel">
+            <h3>Overview</h3>
+            {statsLoading ? (
+              <p className="home-panel-empty">Loading...</p>
+            ) : stats ? (
+              <div className="home-mini-stats">
+                <div className="home-mini-stat">
+                  <span className="home-mini-stat-value">{stats.total_articles}</span>
+                  <span className="home-mini-stat-label">Articles</span>
+                </div>
+                <div className="home-mini-stat">
+                  <span className="home-mini-stat-value">{stats.total_categories}</span>
+                  <span className="home-mini-stat-label">Categories</span>
+                </div>
+                <div className="home-mini-stat">
+                  <span className="home-mini-stat-value">{stats.total_feedback}</span>
+                  <span className="home-mini-stat-label">Feedback</span>
+                </div>
+                <div className="home-mini-stat">
+                  <span className="home-mini-stat-value">{stats.average_rating || "N/A"}</span>
+                  <span className="home-mini-stat-label">Avg Rating</span>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="home-panel">
+            <h3>Categories</h3>
+            {statsLoading ? (
+              <p className="home-panel-empty">Loading...</p>
+            ) : stats && stats.categories_breakdown.length > 0 ? (
+              <ul className="home-category-list">
+                <li
+                  className={activeCategory === null ? "active" : ""}
+                  onClick={() => setActiveCategory(null)}
+                >
+                  <span>All Articles</span>
+                </li>
+                {stats.categories_breakdown.map((c) => (
+                  <li
+                    key={c.id}
+                    className={activeCategory === c.id ? "active" : ""}
+                    onClick={() => setActiveCategory(c.id)}
+                  >
+                    <span>{c.name}</span>
+                    <span className="home-panel-metric">{c.article_count}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="home-panel-empty">No categories yet.</p>
+            )}
+          </div>
+        </aside>
+
+        <main className="home-col home-center">
+          {searched ? (
+            <div className="home-panel">
+              <div className="home-panel-header-row">
+                <h3>Search Results</h3>
+                <button className="home-clear-search" onClick={clearSearch}>
+                  Clear
+                </button>
+              </div>
+              {searching ? (
+                <p className="home-panel-empty">Searching...</p>
+              ) : searchResults.length === 0 ? (
+                <p className="home-panel-empty">No articles matched your search.</p>
+              ) : (
+                <div className="home-article-list">
+                  {searchResults.map((article) => (
+                    <Link key={article.id} to={`/articles/${article.slug}`} className="home-article-card">
+                      <h4>{article.title}</h4>
+                      <p>{article.content}</p>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ) : (
-            <div className="article-list">
-              {articles.map((article) => (
-                <Link key={article.id} to={`/articles/${article.slug}`} className="article-card">
-                  <h3>{article.title}</h3>
-                  <p>{article.content}</p>
-                </Link>
-              ))}
+            <div className="home-panel">
+              <h3>{activeCategory ? "Category Articles" : "All Articles"}</h3>
+              {articlesLoading ? (
+                <p className="home-panel-empty">Loading articles...</p>
+              ) : articles.length === 0 ? (
+                <p className="home-panel-empty">No published articles in this category yet.</p>
+              ) : (
+                <div className="home-article-list">
+                  {articles.map((article) => (
+                    <Link key={article.id} to={`/articles/${article.slug}`} className="home-article-card">
+                      <h4>{article.title}</h4>
+                      <p>{article.content}</p>
+                      <span className="home-article-views">{article.views} views</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-        </div>
-      ) : (
-        <>
-          {statsLoading ? (
-            <div className="empty-state">Loading dashboard...</div>
-          ) : stats ? (
-            <>
-              <div className="home-stat-strip">
-                <div className="home-stat-box">
-                  <div className="home-stat-value">{stats.total_articles}</div>
-                  <div className="home-stat-label">Published Articles</div>
-                </div>
-                <div className="home-stat-box">
-                  <div className="home-stat-value">{stats.total_categories}</div>
-                  <div className="home-stat-label">Categories</div>
-                </div>
-                <div className="home-stat-box">
-                  <div className="home-stat-value">{stats.total_feedback}</div>
-                  <div className="home-stat-label">Feedback Submitted</div>
-                </div>
-                <div className="home-stat-box">
-                  <div className="home-stat-value">{stats.average_rating || "N/A"}</div>
-                  <div className="home-stat-label">Average Rating</div>
-                </div>
-              </div>
+        </main>
 
-              <div className="home-panel-grid">
-                <div className="home-panel">
-                  <h3>Recently Published</h3>
-                  {stats.recent_articles.length === 0 ? (
-                    <p className="home-panel-empty">No articles published yet.</p>
-                  ) : (
-                    <ul className="home-panel-list">
-                      {stats.recent_articles.map((a) => (
-                        <li key={a.id}>
-                          <Link to={`/articles/${a.slug}`}>{a.title}</Link>
-                          <span className="home-panel-metric">{a.views} views</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+        <aside className="home-col home-right">
+          <div className="home-panel">
+            <h3>Most Viewed</h3>
+            {statsLoading ? (
+              <p className="home-panel-empty">Loading...</p>
+            ) : stats && stats.top_viewed.length > 0 ? (
+              <ul className="home-panel-list">
+                {stats.top_viewed.map((a) => (
+                  <li key={a.id}>
+                    <Link to={`/articles/${a.slug}`}>{a.title}</Link>
+                    <span className="home-panel-metric">{a.views} views</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="home-panel-empty">No view data yet.</p>
+            )}
+          </div>
 
-                <div className="home-panel">
-                  <h3>Most Viewed</h3>
-                  {stats.top_viewed.length === 0 ? (
-                    <p className="home-panel-empty">No view data yet.</p>
-                  ) : (
-                    <ul className="home-panel-list">
-                      {stats.top_viewed.map((a) => (
-                        <li key={a.id}>
-                          <Link to={`/articles/${a.slug}`}>{a.title}</Link>
-                          <span className="home-panel-metric">{a.views} views</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+          <div className="home-panel">
+            <h3>Feedback Trends</h3>
+            {statsLoading ? (
+              <p className="home-panel-empty">Loading...</p>
+            ) : stats ? (
+              <>
+                <div className="home-rating-bars">
+                  {[5, 4, 3, 2, 1].map((star) => {
+                    const count = stats.feedback_distribution[String(star)] || 0;
+                    const max = Math.max(...Object.values(stats.feedback_distribution), 1);
+                    const pct = (count / max) * 100;
+                    return (
+                      <div key={star} className="home-rating-row">
+                        <span className="home-rating-label">{star} star</span>
+                        <div className="home-rating-track">
+                          <div className="home-rating-fill" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="home-rating-count">{count}</span>
+                      </div>
+                    );
+                  })}
                 </div>
-
-                <div className="home-panel">
-                  <h3>Categories</h3>
-                  {stats.categories_breakdown.length === 0 ? (
-                    <p className="home-panel-empty">No categories yet.</p>
-                  ) : (
-                    <ul className="home-panel-list">
-                      {stats.categories_breakdown.map((c) => (
-                        <li key={c.id}>
-                          <span>{c.name}</span>
-                          <span className="home-panel-metric">
-                            {c.article_count} article{c.article_count === 1 ? "" : "s"}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="empty-state">Unable to load dashboard data.</div>
-          )}
-        </>
-      )}
+                {stats.recent_feedback.length > 0 && (
+                  <div className="home-recent-feedback">
+                    {stats.recent_feedback.slice(0, 3).map((fb, i) => (
+                      <div key={i} className="home-feedback-item">
+                        <div className="home-feedback-top">
+                          <span className="home-feedback-article">{fb.article_title}</span>
+                          <span className="home-feedback-rating">{fb.rating}★</span>
+                        </div>
+                        {fb.comment && <p className="home-feedback-comment">"{fb.comment}"</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="home-panel-empty">No feedback yet.</p>
+            )}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

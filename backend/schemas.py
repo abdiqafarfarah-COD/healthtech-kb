@@ -110,6 +110,8 @@ class PublicStats(BaseModel):
     recent_articles: list[dict]
     top_viewed: list[dict]
     categories_breakdown: list[dict]
+    feedback_distribution: dict[str, int]
+    recent_feedback: list[dict]
 
 
 class DashboardStats(BaseModel):
@@ -125,3 +127,5 @@ class DashboardStats(BaseModel):
     users_by_role: dict[str, int]
     total_chats: int
     unanswered_chats: int
+    articles_by_author: list[dict]
+    pending_drafts: list[dict]

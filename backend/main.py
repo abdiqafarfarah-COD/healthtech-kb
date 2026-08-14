@@ -97,8 +97,11 @@ def create_article(
 
 
 @app.get("/api/v1/articles", response_model=list[schemas.ArticleOut])
-def list_articles(db: Session = Depends(get_db)):
-    return db.query(models.Article).filter(models.Article.status == "published").all()
+def list_articles(category_id: int | None = None, db: Session = Depends(get_db)):
+    query = db.query(models.Article).filter(models.Article.status == "published")
+    if category_id is not None:
+        query = query.filter(models.Article.category_id == category_id)
+    return query.order_by(models.Article.created_at.desc()).all()
 
 
 @app.get("/api/v1/articles/{slug}", response_model=schemas.ArticleOut)
@@ -183,7 +186,10 @@ def list_categories(db: Session = Depends(get_db)):
     categories = db.query(models.Category).all()
     output = []
     for cat in categories:
-        count = db.query(models.Article).filter(models.Article.category_id == cat.id).count()
+        count = db.query(models.Article).filter(
+            models.Article.category_id == cat.id,
+            models.Article.status == "published",
+        ).count()
         item = schemas.CategoryOut.model_validate(cat)
         item.article_count = count
         output.append(item)
@@ -333,6 +339,27 @@ def public_stats(db: Session = Depends(get_db)):
         ).count()
         categories_breakdown.append({"id": cat.id, "name": cat.name, "article_count": count})
 
+    feedback_distribution = {}
+    for star in [1, 2, 3, 4, 5]:
+        count = db.query(models.Feedback).filter(models.Feedback.rating == star).count()
+        feedback_distribution[str(star)] = count
+
+    recent_feedback_query = (
+        db.query(models.Feedback, models.Article.title)
+        .join(models.Article, models.Article.id == models.Feedback.article_id)
+        .order_by(models.Feedback.created_at.desc())
+        .limit(5)
+        .all()
+    )
+    recent_feedback = [
+        {
+            "article_title": title,
+            "rating": fb.rating,
+            "comment": fb.comment,
+        }
+        for fb, title in recent_feedback_query
+    ]
+
     return schemas.PublicStats(
         total_articles=total_articles,
         total_categories=total_categories,
@@ -341,6 +368,8 @@ def public_stats(db: Session = Depends(get_db)):
         recent_articles=recent_articles,
         top_viewed=top_viewed,
         categories_breakdown=categories_breakdown,
+        feedback_distribution=feedback_distribution,
+        recent_feedback=recent_feedback,
     )
 
 
@@ -383,6 +412,27 @@ def admin_dashboard(
     total_chats = db.query(models.ChatLog).count()
     unanswered_chats = db.query(models.ChatLog).filter(models.ChatLog.cited_article_id.is_(None)).count()
 
+    articles_by_author_query = (
+        db.query(models.User.name, sqlfunc.count(models.Article.id))
+        .join(models.Article, models.Article.author_id == models.User.id)
+        .group_by(models.User.name)
+        .all()
+    )
+    articles_by_author = [{"name": name, "count": count} for name, count in articles_by_author_query]
+
+    pending_drafts_query = (
+        db.query(models.Article, models.User.name)
+        .join(models.User, models.User.id == models.Article.author_id)
+        .filter(models.Article.status == "draft")
+        .order_by(models.Article.created_at.desc())
+        .limit(5)
+        .all()
+    )
+    pending_drafts = [
+        {"id": a.id, "title": a.title, "author": name}
+        for a, name in pending_drafts_query
+    ]
+
     return schemas.DashboardStats(
         total_articles=total_articles,
         published_articles=published_articles,
@@ -396,4 +446,6 @@ def admin_dashboard(
         users_by_role=users_by_role,
         total_chats=total_chats,
         unanswered_chats=unanswered_chats,
+        articles_by_author=articles_by_author,
+        pending_drafts=pending_drafts,
     )
