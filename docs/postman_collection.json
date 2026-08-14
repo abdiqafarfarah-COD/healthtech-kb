@@ -4,10 +4,22 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base_url", "value": "http://localhost:8000/api/v1" },
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api/v1" },
     { "key": "token", "value": "" }
   ],
   "item": [
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Amina Hassan\",\n  \"email\": \"amina@example.com\",\n  \"password\": \"SecurePass123\",\n  \"department\": \"Radiology\"\n}"
+        }
+      }
+    },
     {
       "name": "Auth - Login",
       "request": {
@@ -16,12 +28,12 @@
         "url": "{{base_url}}/auth/login",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"email\": \"amina@example.com\",\n  \"password\": \"secret123\"\n}"
+          "raw": "{\n  \"email\": \"grace@example.com\",\n  \"password\": \"AdminPass123\"\n}"
         }
       }
     },
     {
-      "name": "Articles - List",
+      "name": "Articles - List (Published)",
       "request": {
         "method": "GET",
         "url": "{{base_url}}/articles"
@@ -31,11 +43,11 @@
       "name": "Articles - Get by Slug",
       "request": {
         "method": "GET",
-        "url": "{{base_url}}/articles/reverse-discharge-entry"
+        "url": "{{base_url}}/articles/how-to-reset-a-patient-record"
       }
     },
     {
-      "name": "Articles - Create",
+      "name": "Articles - Create (Editor/Admin)",
       "request": {
         "method": "POST",
         "header": [
@@ -50,6 +62,29 @@
       }
     },
     {
+      "name": "Articles - Publish (Admin)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/articles/1/publish"
+      }
+    },
+    {
+      "name": "Categories - Create (Admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{base_url}}/categories",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Billing and Payments\",\n  \"description\": \"Articles related to invoicing and billing disputes.\"\n}"
+        }
+      }
+    },
+    {
       "name": "Categories - List",
       "request": {
         "method": "GET",
@@ -60,7 +95,7 @@
       "name": "Search",
       "request": {
         "method": "GET",
-        "url": "{{base_url}}/search?q=discharge"
+        "url": "{{base_url}}/search?q=patient"
       }
     },
     {
@@ -86,7 +121,7 @@
         "url": "{{base_url}}/chat",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"question\": \"How do I reverse a discharge entry?\",\n  \"session_id\": \"abc-123\"\n}"
+          "raw": "{\n  \"question\": \"How do I reset a patient record?\",\n  \"session_id\": \"abc-123\"\n}"
         }
       }
     },

@@ -6,6 +6,7 @@ erDiagram
     USERS ||--o{ FEEDBACK : submits
     USERS ||--o{ SEARCH_LOGS : generates
     USERS ||--o{ CHAT_LOGS : starts
+    USERS ||--o{ AUDIT_LOGS : performs
     CATEGORIES ||--o{ ARTICLES : contains
     ARTICLES ||--o{ ARTICLE_TAGS : has
     TAGS ||--o{ ARTICLE_TAGS : has
@@ -92,4 +93,16 @@ erDiagram
         boolean helpful
         datetime created_at
     }
+
+    AUDIT_LOGS {
+        int id PK
+        int user_id FK
+        string action
+        string target_type
+        int target_id
+        string details
+        datetime created_at
+    }
 ```
+
+**Note:** `tags`, `article_tags`, and `media` tables exist in the schema but do not yet have corresponding API endpoints or frontend UI. They are reserved for future iterations beyond the current capstone scope.
