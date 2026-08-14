@@ -1,3 +1,9 @@
+.admin-layout {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
 .admin-header {
   margin-bottom: 28px;
 }
@@ -14,96 +20,160 @@
   font-size: 14px;
 }
 
-.admin-section-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 32px 0 14px;
-}
-
-.admin-stat-grid {
+.admin-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-}
-
-.admin-stat-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.admin-stat-box {
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-}
-
-.admin-stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: #2563eb;
-  margin-bottom: 4px;
-}
-
-.admin-stat-label {
-  font-size: 12px;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.admin-role-strip {
-  display: flex;
-  gap: 16px;
-}
-
-.admin-role-box {
-  flex: 1;
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 10px;
-  padding: 18px;
-  text-align: center;
-}
-
-.admin-role-count {
-  font-size: 24px;
-  font-weight: 700;
-  color: #2563eb;
-  margin-bottom: 4px;
-}
-
-.admin-role-name {
-  font-size: 12px;
-  color: #1d4ed8;
-  text-transform: capitalize;
-  font-weight: 600;
-}
-
-.admin-panel-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 260px 1fr 300px;
   gap: 20px;
-  margin-top: 32px;
+  align-items: start;
+}
+
+.admin-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .admin-panel {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  padding: 22px 24px;
+  padding: 20px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .admin-panel h3 {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: #0f172a;
   margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.admin-mini-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.admin-mini-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  background-color: #eff6ff;
+  border-radius: 8px;
+}
+
+.admin-mini-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.admin-mini-stat-label {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.admin-role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-role-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  background-color: #f8fafc;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.admin-role-name {
+  color: #334155;
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.admin-role-count {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.admin-role-total {
+  background-color: #eff6ff;
+  margin-top: 4px;
+}
+
+.admin-role-total .admin-role-name {
+  font-weight: 700;
+}
+
+.admin-answer-rate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.admin-answer-rate-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.admin-author-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-author-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.admin-author-name {
+  width: 100px;
+  flex-shrink: 0;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-author-track {
+  flex: 1;
+  height: 10px;
+  background-color: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.admin-author-fill {
+  height: 100%;
+  background-color: #2563eb;
+  border-radius: 999px;
+}
+
+.admin-author-count {
+  width: 20px;
+  text-align: right;
+  color: #64748b;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
 .admin-panel-list {
@@ -144,17 +214,8 @@
   font-size: 13px;
 }
 
-@media (max-width: 900px) {
-  .admin-stat-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .admin-stat-grid-3 {
-    grid-template-columns: 1fr;
-  }
-  .admin-role-strip {
-    flex-direction: column;
-  }
-  .admin-panel-grid {
+@media (max-width: 1100px) {
+  .admin-grid {
     grid-template-columns: 1fr;
   }
 }
