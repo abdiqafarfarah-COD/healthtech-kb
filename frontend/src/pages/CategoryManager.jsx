@@ -62,7 +62,7 @@ export default function CategoryManager() {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container category-page">
       <div className="category-header">
         <h1>Category Manager</h1>
         <p>Create and view knowledge base categories</p>
@@ -118,11 +118,11 @@ export default function CategoryManager() {
         <h2>Existing Categories</h2>
 
         {loading ? (
-          <p className="panel-empty">Loading categories...</p>
+          <p className="category-panel-empty">Loading categories...</p>
         ) : loadError ? (
-          <p className="panel-empty">{loadError}</p>
+          <p className="category-panel-empty">{loadError}</p>
         ) : categories.length === 0 ? (
-          <p className="panel-empty">No categories created yet.</p>
+          <p className="category-panel-empty">No categories created yet.</p>
         ) : (
           <div className="category-list">
             {categories.map((cat) => (
