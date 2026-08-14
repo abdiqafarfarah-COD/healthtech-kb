@@ -1,34 +1,34 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict
+from datetime import datetime
 from typing import Optional
 
 
 class UserCreate(BaseModel):
     name: str
-    email: EmailStr
+    email: str
     password: str
-    role: Optional[str] = "viewer"
+    role: str = "viewer"
     department: Optional[str] = None
 
 
 class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
-    email: EmailStr
+    email: str
     role: str
     department: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 
 class TokenResponse(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str
     role: str
 
 
@@ -40,16 +40,19 @@ class ArticleCreate(BaseModel):
 
 
 class ArticleOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title: str
     slug: str
     content: str
-    status: str
     category_id: Optional[int] = None
-    author_id: Optional[int] = None
-
-    class Config:
-        from_attributes = True
+    author_id: int
+    status: str
+    product_version: Optional[str] = None
+    views: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
 
 
 class CategoryCreate(BaseModel):
@@ -59,15 +62,14 @@ class CategoryCreate(BaseModel):
 
 
 class CategoryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     slug: str
-    parent_id: Optional[int] = None
     description: Optional[str] = None
+    parent_id: Optional[int] = None
     article_count: int = 0
-
-    class Config:
-        from_attributes = True
 
 
 class FeedbackCreate(BaseModel):
@@ -77,14 +79,14 @@ class FeedbackCreate(BaseModel):
 
 
 class FeedbackOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     article_id: int
-    user_id: Optional[int] = None
+    user_id: int
     rating: int
     comment: Optional[str] = None
-
-    class Config:
-        from_attributes = True
+    created_at: datetime
 
 
 class ChatRequest(BaseModel):
@@ -100,6 +102,16 @@ class ChatResponse(BaseModel):
     session_id: str
 
 
+class PublicStats(BaseModel):
+    total_articles: int
+    total_categories: int
+    total_feedback: int
+    average_rating: float
+    recent_articles: list[dict]
+    top_viewed: list[dict]
+    categories_breakdown: list[dict]
+
+
 class DashboardStats(BaseModel):
     total_articles: int
     published_articles: int
@@ -110,3 +122,6 @@ class DashboardStats(BaseModel):
     low_rated_articles: list[dict]
     recent_searches: list[dict]
     recent_audit_log: list[dict]
+    users_by_role: dict[str, int]
+    total_chats: int
+    unanswered_chats: int

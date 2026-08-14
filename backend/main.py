@@ -106,6 +106,11 @@ def get_article(slug: str, db: Session = Depends(get_db)):
     article = db.query(models.Article).filter(models.Article.slug == slug).first()
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
+
+    article.views = article.views + 1
+    db.commit()
+    db.refresh(article)
+
     return article
 
 
@@ -286,6 +291,59 @@ def chat(request: schemas.ChatRequest, db: Session = Depends(get_db)):
     )
 
 
+@app.get("/api/v1/stats/public", response_model=schemas.PublicStats)
+def public_stats(db: Session = Depends(get_db)):
+    total_articles = db.query(models.Article).filter(models.Article.status == "published").count()
+    total_categories = db.query(models.Category).count()
+    total_feedback = db.query(models.Feedback).count()
+
+    avg_rating_result = db.query(sqlfunc.avg(models.Feedback.rating)).scalar()
+    avg_rating = round(float(avg_rating_result), 1) if avg_rating_result else 0.0
+
+    recent_articles_query = (
+        db.query(models.Article)
+        .filter(models.Article.status == "published")
+        .order_by(models.Article.created_at.desc())
+        .limit(5)
+        .all()
+    )
+    recent_articles = [
+        {"id": a.id, "title": a.title, "slug": a.slug, "views": a.views}
+        for a in recent_articles_query
+    ]
+
+    top_viewed_query = (
+        db.query(models.Article)
+        .filter(models.Article.status == "published")
+        .order_by(models.Article.views.desc())
+        .limit(5)
+        .all()
+    )
+    top_viewed = [
+        {"id": a.id, "title": a.title, "slug": a.slug, "views": a.views}
+        for a in top_viewed_query
+    ]
+
+    categories_query = db.query(models.Category).all()
+    categories_breakdown = []
+    for cat in categories_query:
+        count = db.query(models.Article).filter(
+            models.Article.category_id == cat.id,
+            models.Article.status == "published",
+        ).count()
+        categories_breakdown.append({"id": cat.id, "name": cat.name, "article_count": count})
+
+    return schemas.PublicStats(
+        total_articles=total_articles,
+        total_categories=total_categories,
+        total_feedback=total_feedback,
+        average_rating=avg_rating,
+        recent_articles=recent_articles,
+        top_viewed=top_viewed,
+        categories_breakdown=categories_breakdown,
+    )
+
+
 @app.get("/api/v1/admin/dashboard", response_model=schemas.DashboardStats)
 def admin_dashboard(
     db: Session = Depends(get_db),
@@ -319,6 +377,12 @@ def admin_dashboard(
     recent_audit_query = db.query(models.AuditLog).order_by(models.AuditLog.created_at.desc()).limit(10).all()
     recent_audit_log = [{"action": a.action, "details": a.details, "user_id": a.user_id} for a in recent_audit_query]
 
+    role_counts_query = db.query(models.User.role, sqlfunc.count(models.User.id)).group_by(models.User.role).all()
+    users_by_role = {role: count for role, count in role_counts_query}
+
+    total_chats = db.query(models.ChatLog).count()
+    unanswered_chats = db.query(models.ChatLog).filter(models.ChatLog.cited_article_id.is_(None)).count()
+
     return schemas.DashboardStats(
         total_articles=total_articles,
         published_articles=published_articles,
@@ -329,4 +393,7 @@ def admin_dashboard(
         low_rated_articles=low_rated_articles,
         recent_searches=recent_searches,
         recent_audit_log=recent_audit_log,
+        users_by_role=users_by_role,
+        total_chats=total_chats,
+        unanswered_chats=unanswered_chats,
     )
