@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timedelta
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -433,6 +434,18 @@ def admin_dashboard(
         for a, name in pending_drafts_query
     ]
 
+    today = datetime.utcnow().date()
+    chat_volume_by_day = []
+    for days_ago in range(6, -1, -1):
+        day = today - timedelta(days=days_ago)
+        day_start = datetime.combine(day, datetime.min.time())
+        day_end = day_start + timedelta(days=1)
+        count = db.query(models.ChatLog).filter(
+            models.ChatLog.created_at >= day_start,
+            models.ChatLog.created_at < day_end,
+        ).count()
+        chat_volume_by_day.append({"date": day.strftime("%b %d"), "count": count})
+
     return schemas.DashboardStats(
         total_articles=total_articles,
         published_articles=published_articles,
@@ -448,4 +461,5 @@ def admin_dashboard(
         unanswered_chats=unanswered_chats,
         articles_by_author=articles_by_author,
         pending_drafts=pending_drafts,
+        chat_volume_by_day=chat_volume_by_day,
     )

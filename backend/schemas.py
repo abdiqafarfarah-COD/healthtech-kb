@@ -129,3 +129,4 @@ class DashboardStats(BaseModel):
     unanswered_chats: int
     articles_by_author: list[dict]
     pending_drafts: list[dict]
+    chat_volume_by_day: list[dict]
