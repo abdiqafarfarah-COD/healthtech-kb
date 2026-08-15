@@ -1,4 +1,15 @@
 import { useState, useEffect } from "react";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 import api from "../services/api";
 import "./AdminDashboard.css";
 
@@ -35,6 +46,11 @@ export default function AdminDashboard() {
       </div>
     );
   }
+
+  const authorChartData = stats.articles_by_author.map((a) => ({
+    name: a.name.split(" ")[0],
+    count: a.count,
+  }));
 
   return (
     <div className="admin-layout">
@@ -112,25 +128,38 @@ export default function AdminDashboard() {
         <main className="admin-col admin-center">
           <div className="admin-panel">
             <h3>Productivity: Articles by Author</h3>
-            {stats.articles_by_author.length === 0 ? (
+            {authorChartData.length === 0 ? (
               <p className="admin-panel-empty">No authored articles yet.</p>
             ) : (
-              <div className="admin-author-bars">
-                {stats.articles_by_author.map((a) => {
-                  const max = Math.max(...stats.articles_by_author.map((x) => x.count), 1);
-                  const pct = (a.count / max) * 100;
-                  return (
-                    <div key={a.name} className="admin-author-row">
-                      <span className="admin-author-name">{a.name}</span>
-                      <div className="admin-author-track">
-                        <div className="admin-author-fill" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="admin-author-count">{a.count}</span>
-                    </div>
-                  );
-                })}
-              </div>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={authorChartData} layout="vertical" margin={{ left: 10 }}>
+                  <XAxis type="number" hide />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={70}
+                    tick={{ fontSize: 12, fill: "#334155" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip cursor={{ fill: "#f1f5f9" }} />
+                  <Bar dataKey="count" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={22} />
+                </BarChart>
+              </ResponsiveContainer>
             )}
+          </div>
+
+          <div className="admin-panel">
+            <h3>Chatbot Conversations, Last 7 Days</h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <LineChart data={stats.chat_volume_by_day} margin={{ left: -10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip />
+                <Line type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
           <div className="admin-panel">
