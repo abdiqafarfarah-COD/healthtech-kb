@@ -1,7 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import api from "../services/api";
 import "./Home.css";
+
+const PIE_COLORS = ["#2563eb", "#38bdf8", "#a78bfa", "#f472b6", "#fb923c", "#34d399", "#facc15", "#94a3b8"];
 
 export default function Home() {
   const [stats, setStats] = useState(null);
@@ -74,6 +87,19 @@ export default function Home() {
     setSearchResults([]);
   }
 
+  const pieData = stats
+    ? stats.categories_breakdown
+        .filter((c) => c.article_count > 0)
+        .map((c) => ({ name: c.name, value: c.article_count }))
+    : [];
+
+  const ratingBarData = stats
+    ? [5, 4, 3, 2, 1].map((star) => ({
+        star: `${star}★`,
+        count: stats.feedback_distribution[String(star)] || 0,
+      }))
+    : [];
+
   return (
     <div className="home-layout">
       <div className="home-hero">
@@ -117,6 +143,48 @@ export default function Home() {
                 </div>
               </div>
             ) : null}
+          </div>
+
+          <div className="home-panel">
+            <h3>Articles by Category</h3>
+            {statsLoading ? (
+              <p className="home-panel-empty">Loading...</p>
+            ) : pieData.length > 0 ? (
+              <div className="home-pie-wrapper">
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={70}
+                      paddingAngle={2}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="home-pie-legend">
+                  {pieData.map((entry, index) => (
+                    <div key={index} className="home-pie-legend-item">
+                      <span
+                        className="home-pie-dot"
+                        style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                      />
+                      <span>{entry.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="home-panel-empty">No data yet.</p>
+            )}
           </div>
 
           <div className="home-panel">
@@ -219,22 +287,14 @@ export default function Home() {
               <p className="home-panel-empty">Loading...</p>
             ) : stats ? (
               <>
-                <div className="home-rating-bars">
-                  {[5, 4, 3, 2, 1].map((star) => {
-                    const count = stats.feedback_distribution[String(star)] || 0;
-                    const max = Math.max(...Object.values(stats.feedback_distribution), 1);
-                    const pct = (count / max) * 100;
-                    return (
-                      <div key={star} className="home-rating-row">
-                        <span className="home-rating-label">{star} star</span>
-                        <div className="home-rating-track">
-                          <div className="home-rating-fill" style={{ width: `${pct}%` }} />
-                        </div>
-                        <span className="home-rating-count">{count}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                <ResponsiveContainer width="100%" height={140}>
+                  <BarChart data={ratingBarData}>
+                    <XAxis dataKey="star" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                    <YAxis hide />
+                    <Tooltip cursor={{ fill: "#f1f5f9" }} />
+                    <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
                 {stats.recent_feedback.length > 0 && (
                   <div className="home-recent-feedback">
                     {stats.recent_feedback.slice(0, 3).map((fb, i) => (
