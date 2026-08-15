@@ -61,84 +61,137 @@ export default function CategoryManager() {
     }
   }
 
+  const totalArticles = categories.reduce((sum, c) => sum + c.article_count, 0);
+  const largestCategory = categories.length > 0
+    ? categories.reduce((max, c) => (c.article_count > max.article_count ? c : max), categories[0])
+    : null;
+  const emptyCategories = categories.filter((c) => c.article_count === 0);
+
   return (
-    <div className="page-container category-page">
+    <div className="category-layout">
       <div className="category-header">
         <h1>Category Manager</h1>
         <p>Create and view knowledge base categories</p>
       </div>
 
-      {message && <div className="auth-success">{message}</div>}
-      {error && <div className="auth-error">{error}</div>}
+      <div className="category-grid">
+        <div className="category-main">
+          {message && <div className="auth-success">{message}</div>}
+          {error && <div className="auth-error">{error}</div>}
 
-      <form className="category-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">Category Name</label>
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
+          <form className="category-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name">Category Name</label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="description">Description (optional)</label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-          />
-        </div>
+            <div className="form-group">
+              <label htmlFor="description">Description (optional)</label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="parent">Parent Category (optional)</label>
-          <select
-            id="parent"
-            value={parentId}
-            onChange={(e) => setParentId(e.target.value)}
-          >
-            <option value="">No parent (top-level category)</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="form-group">
+              <label htmlFor="parent">Parent Category (optional)</label>
+              <select
+                id="parent"
+                value={parentId}
+                onChange={(e) => setParentId(e.target.value)}
+              >
+                <option value="">No parent (top-level category)</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? "Creating..." : "Create Category"}
-        </button>
-      </form>
+            <button type="submit" disabled={submitting}>
+              {submitting ? "Creating..." : "Create Category"}
+            </button>
+          </form>
 
-      <div className="category-list-section">
-        <h2>Existing Categories</h2>
+          <div className="category-list-section">
+            <h2>Existing Categories</h2>
 
-        {loading ? (
-          <p className="category-panel-empty">Loading categories...</p>
-        ) : loadError ? (
-          <p className="category-panel-empty">{loadError}</p>
-        ) : categories.length === 0 ? (
-          <p className="category-panel-empty">No categories created yet.</p>
-        ) : (
-          <div className="category-list">
-            {categories.map((cat) => (
-              <div key={cat.id} className="category-card">
-                <div className="category-card-name">{cat.name}</div>
-                {cat.description && (
-                  <div className="category-card-desc">{cat.description}</div>
-                )}
-                <div className="category-card-count">
-                  {cat.article_count} article
-                  {cat.article_count === 1 ? "" : "s"}
-                </div>
+            {loading ? (
+              <p className="category-panel-empty">Loading categories...</p>
+            ) : loadError ? (
+              <p className="category-panel-empty">{loadError}</p>
+            ) : categories.length === 0 ? (
+              <p className="category-panel-empty">No categories created yet.</p>
+            ) : (
+              <div className="category-list">
+                {categories.map((cat) => (
+                  <div key={cat.id} className="category-card">
+                    <div className="category-card-name">{cat.name}</div>
+                    {cat.description && (
+                      <div className="category-card-desc">{cat.description}</div>
+                    )}
+                    <div className="category-card-count">
+                      {cat.article_count} article
+                      {cat.article_count === 1 ? "" : "s"}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
+        </div>
+
+        <aside className="category-side">
+          <div className="category-panel">
+            <h3>Summary</h3>
+            <div className="category-mini-stats">
+              <div className="category-mini-stat">
+                <span className="category-mini-stat-value">{categories.length}</span>
+                <span className="category-mini-stat-label">Categories</span>
+              </div>
+              <div className="category-mini-stat">
+                <span className="category-mini-stat-value">{totalArticles}</span>
+                <span className="category-mini-stat-label">Articles</span>
+              </div>
+            </div>
+          </div>
+
+          {largestCategory && largestCategory.article_count > 0 && (
+            <div className="category-panel">
+              <h3>Largest Category</h3>
+              <div className="category-highlight-name">{largestCategory.name}</div>
+              <div className="category-highlight-meta">
+                {largestCategory.article_count} article
+                {largestCategory.article_count === 1 ? "" : "s"}
+              </div>
+            </div>
+          )}
+
+          <div className="category-panel">
+            <h3>Needs Content</h3>
+            {emptyCategories.length === 0 ? (
+              <p className="category-panel-empty">Every category has at least one article.</p>
+            ) : (
+              <ul className="category-panel-list">
+                {emptyCategories.map((c) => (
+                  <li key={c.id}>
+                    <span>{c.name}</span>
+                    <span className="category-panel-metric">0 articles</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </aside>
       </div>
     </div>
   );
