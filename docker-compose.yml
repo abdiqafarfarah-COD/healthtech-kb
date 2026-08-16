@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:testpassword123@host.docker.internal:5432/healthtech_kb
+      - SECRET_KEY=k3nY4h34lthT3ch_kB_2026_$$3cr3t_JWT_k3y_d0Not5hare
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=480
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
